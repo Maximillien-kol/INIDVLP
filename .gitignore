@@ -16,13 +16,127 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-.env*
-.env.local*
+# ============================================
+# SECURITY: Environment & Configuration Files
+# ============================================
 
+# env files (all variations)
+.env
+.env.*
+.env.local
+.env.local.*
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+.env.staging
+.env.backup
+.envrc
+env.example
+*.env
+
+# Configuration files with secrets
+config.local.js
+config.local.json
+config.local.ts
+secrets.json
+secrets.yml
+secrets.yaml
+credentials.json
+credentials.yml
+
+# AWS credentials
+.aws/
+aws-credentials.json
+aws-config.json
+
+# Google Cloud credentials
+gcloud-credentials.json
+service-account.json
+firebase-adminsdk*.json
+
+# API keys and tokens
+*apikey*
+*api-key*
+*api_key*
+*.key
+*.pem
+*.p12
+*.pfx
+*secret*
+*token*
+*credentials*
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_dsa
+id_dsa.pub
+id_ecdsa
+id_ecdsa.pub
+id_ed25519
+id_ed25519.pub
+*.ppk
+
+# Password files
+passwords.txt
+*.password
+.htpasswd
+
+# Database dumps with potential secrets
+*.sql
+*.sqlite
+*.db
+
+# Backup files that might contain secrets
+*.backup
+*.bak
+*.old
+*.orig
+*~
+
+# ============================================
 # vercel
+# ============================================
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ============================================
+# IDE & Editor files (may contain secrets)
+# ============================================
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# Logs (may leak sensitive data)
+# ============================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ============================================
+# Testing & Coverage (may contain test data)
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+
+# ============================================
+# Temporary files
+# ============================================
+tmp/
+temp/
+*.tmp

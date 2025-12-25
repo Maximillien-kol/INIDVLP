@@ -39,6 +39,15 @@ function ContactInfo({ label, items }: ContactInfoProps) {
 
 export default function ContactPage() {
     const [selectedServices, setSelectedServices] = useState<string[]>([])
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        message: '',
+    })
 
     const toggleService = (service: string) => {
         setSelectedServices(prev =>
@@ -46,6 +55,52 @@ export default function ContactPage() {
                 ? prev.filter(s => s !== service)
                 : [...prev, service]
         )
+    }
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }))
+    }
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setIsSubmitting(true)
+        setSubmitStatus('idle')
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...formData,
+                    services: selectedServices,
+                }),
+            })
+
+            if (response.ok) {
+                setSubmitStatus('success')
+                // Reset form
+                setFormData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    company: '',
+                    message: '',
+                })
+                setSelectedServices([])
+            } else {
+                setSubmitStatus('error')
+            }
+        } catch (error) {
+            console.error('Error submitting form:', error)
+            setSubmitStatus('error')
+        } finally {
+            setIsSubmitting(false)
+        }
     }
 
     return (
@@ -128,7 +183,7 @@ export default function ContactPage() {
 
                             {/* Right Column: Contact Form */}
                             <div className="bg-gray-50 p-8 rounded-sm">
-                                <form className="space-y-6">
+                                <form className="space-y-6" onSubmit={handleSubmit}>
                                     {/* First Name & Last Name */}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
@@ -137,21 +192,26 @@ export default function ContactPage() {
                                             </label>
                                             <input
                                                 type="text"
-                                                id="firstName"
-                                                name="firstName"
-                                                placeholder="First name"
+                                                id="name"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleInputChange}
+                                                placeholder="Full name"
+                                                required
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-[#1C1C1C] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                                             />
                                         </div>
                                         <div>
-                                            <label htmlFor="lastName" className="block text-sm text-gray-600 mb-2">
-                                                Last Name
+                                            <label htmlFor="company" className="block text-sm text-gray-600 mb-2">
+                                                Company (Optional)
                                             </label>
                                             <input
                                                 type="text"
-                                                id="lastName"
-                                                name="lastName"
-                                                placeholder="last name"
+                                                id="company"
+                                                name="company"
+                                                value={formData.company}
+                                                onChange={handleInputChange}
+                                                placeholder="Company name"
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-[#1C1C1C] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                                             />
                                         </div>
@@ -167,7 +227,10 @@ export default function ContactPage() {
                                                 type="email"
                                                 id="email"
                                                 name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
                                                 placeholder="example@gmail.com"
+                                                required
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-[#1C1C1C] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                                             />
                                         </div>
@@ -179,6 +242,8 @@ export default function ContactPage() {
                                                 type="tel"
                                                 id="phone"
                                                 name="phone"
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
                                                 placeholder="+250...."
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-[#1C1C1C] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all"
                                             />
@@ -263,11 +328,27 @@ export default function ContactPage() {
                                         <textarea
                                             id="message"
                                             name="message"
+                                            value={formData.message}
+                                            onChange={handleInputChange}
                                             rows={5}
-                                            placeholder="Message..."
+                                            placeholder="Tell us about your project..."
+                                            required
                                             className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-[#1C1C1C] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-transparent transition-all resize-none"
                                         />
                                     </div>
+
+
+                                    {/* Status Messages */}
+                                    {submitStatus === 'success' && (
+                                        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+                                            Thank you! Your message has been sent successfully. We'll get back to you soon.
+                                        </div>
+                                    )}
+                                    {submitStatus === 'error' && (
+                                        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+                                            Sorry, there was an error sending your message. Please try again or email us directly.
+                                        </div>
+                                    )}
 
                                     {/* Submit Button */}
                                     <div className="flex justify-center pt-4">
@@ -276,9 +357,9 @@ export default function ContactPage() {
                                             type="submit"
                                             variant="ghost"
                                             size="md"
-                                            className="uppercase tracking-wider text-sm font-semibold"
+                                            className={`uppercase tracking-wider text-sm font-semibold ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
-                                            Submit now
+                                            {isSubmitting ? 'Sending...' : 'Submit now'}
                                         </CTAButton>
                                     </div>
                                 </form>
